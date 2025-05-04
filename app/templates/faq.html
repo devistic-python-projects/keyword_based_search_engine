@@ -1,0 +1,25 @@
+{% extends 'layout.html' %}
+{% block title %}FAQ{% endblock %}
+{% block content %}
+    <h1>Frequently Asked Questions</h1>
+    <div class="faq-item">
+        <h3>What file formats are supported?</h3>
+        <p>We support .txt, .csv, .json, .xml, and .tsv files.</p>
+    </div>
+    <div class="faq-item">
+        <h3>Do I need an account to search?</h3>
+        <p>No, you can search and download documents without an account. However, uploading requires an account.</p>
+    </div>
+    <div class="faq-item">
+        <h3>How does spell-checking work?</h3>
+        <p>As you type, misspelled words are underlined with a red wavy line. Right-click for suggestions or hover for corrections.</p>
+    </div>
+    <style>
+        .faq-item {
+            margin-bottom: 1rem;
+        }
+        .faq-item h3 {
+            margin-bottom: 0.5rem;
+        }
+    </style>
+{% endblock %}

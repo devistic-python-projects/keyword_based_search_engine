@@ -1,0 +1,81 @@
+{% extends 'layout.html' %}
+{% block title %}User Activity Monitor{% endblock %}
+{% block content %}
+    <h1>User Activity Monitor</h1>
+    <form action="{{ url_for('admin.monitor') }}" method="GET" class="filters">
+        <label for="user_filter">User:</label>
+        <select name="user_filter" id="user_filter">
+            <option value="">All</option>
+            {% for user in users %}
+                <option value="{{ user.username }}" {% if user_filter == user.username %}selected{% endif %}>{{ user.username }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Apply Filter</button>
+    </form>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Table</th>
+                <th>Record ID</th>
+                <th>Action</th>
+                <th>Remarks</th>
+                <th>Created Date</th>
+                <th>Created By</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for activity in activities %}
+                <tr>
+                    <td>{{ activity.id }}</td>
+                    <td>{{ activity.table_name }}</td>
+                    <td>{{ activity.record_id }}</td>
+                    <td>{{ activity.action }}</td>
+                    <td>{{ activity.system_remarks }}</td>
+                    <td>{{ activity.created_date }}</td>
+                    <td>{{ activity.created_by }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div class="pagination">
+        {% if page > 1 %}
+            <a href="{{ url_for('admin.monitor', page=page-1, user_filter=user_filter) }}" class="btn">Previous</a>
+        {% endif %}
+        <span>Page {{ page }} of {{ total_pages }}</span>
+        {% if page < total_pages %}
+            <a href="{{ url_for('admin.monitor', page=page+1, user_filter=user_filter) }}" class="btn">Next</a>
+        {% endif %}
+    </div>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 0.75rem;
+            text-align: left;
+        }
+        th {
+            background: #f4f4f4;
+            font-weight: bold;
+        }
+        .filters {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .filters select, .filters button {
+            padding: 0.5rem;
+            margin-right: 1rem;
+        }
+        .pagination {
+            margin-top: 1rem;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+    </style>
+{% endblock %}

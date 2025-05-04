@@ -1,0 +1,41 @@
+{% extends 'layout.html' %}
+{% block title %}Notifications{% endblock %}
+{% block content %}
+    <h1>Notifications</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Message</th>
+                <th>Type</th>
+                <th>Created By</th>
+                <th>Created Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for notification in notifications %}
+                <tr>
+                    <td>{{ notification.id }}</td>
+                    <td>{{ notification.message }}</td>
+                    <td>{{ notification.type }}</td>
+                    <td>{{ notification.username }}</td>
+                    <td>{{ notification.created_date }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 0.5rem;
+            text-align: left;
+        }
+        th {
+            background: #f4f4f4;
+        }
+    </style>
+{% endblock %}
