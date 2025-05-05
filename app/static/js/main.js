@@ -1,88 +1,94 @@
 $(document).ready(function () {
-    let timeout;
-    let isTyping = false;
-    
-    $("#search-bar").on("input", function () {
-      clearTimeout(timeout);
-      const $this = $(this);
-      const text = $this.text();
-    
-      // Check if typing has started
-      if (!isTyping) {
-        isTyping = true;
-      }
-    
-      if (text.trim()) {
-        // Only trigger after typing stops
-        timeout = setTimeout(() => {
-          const words = text.split(/\s+/);
-          let modified = text;
-    
-          const promises = words.map((word) => {
-            return $.ajax({
-              url: "/spellcheck",
-              method: "POST",
-              contentType: "application/json",
-              data: JSON.stringify({ word }),
-            }).then((response) => {
-              if (!response.is_correct) {
-                const escapedWord = word.replace(
-                  /[-\/\\^$*+?.()|[\]{}]/g,
-                  "\\$&"
-                );
-                const span = `<span class="misspelled" data-word="${word}" title="${
-                  response.suggestions?.join(", ") || "No suggestions"
-                }">${word}</span>`;
-                const regex = new RegExp(`\\b${escapedWord}\\b`, "g");
-                modified = modified.replace(regex, span);
-              }
-            });
-          });
-    
-          Promise.all(promises).then(() => {
-            // Only save and restore the cursor if content actually changed
-            if ($this.html() !== modified) {
-              const cursorPosition = saveCaretPosition($this[0]);
-    
-              // Update the content
-              $this.html(modified);
-    
-              // Restore the cursor position to the end
-              restoreCaretPositionToEnd($this[0]);
+  let timeout;
+  let isTyping = false;
+
+  $("#search-bar").on("keydown", function (e) {
+    // Block Enter (keyCode 13) and Tab (keyCode 9)
+    if (e.key === "Enter" || e.key === "Tab") {
+      e.preventDefault();
+    }
+  });
+
+  $("#search-bar").on("input", function () {
+    clearTimeout(timeout);
+    const $this = $(this);
+    const text = $this.text();
+
+    // Check if typing has started
+    if (!isTyping) {
+      isTyping = true;
+    }
+
+    if (text.trim()) {
+      // Only trigger after typing stops
+      timeout = setTimeout(() => {
+        const words = text.split(/\s+/);
+        let modified = text;
+
+        const promises = words.map((word) => {
+          return $.ajax({
+            url: "/spellcheck",
+            method: "POST",
+            contentType: "application/json",
+            data: JSON.stringify({ word }),
+          }).then((response) => {
+            if (!response.is_correct) {
+              const escapedWord = word.replace(
+                /[-\/\\^$*+?.()|[\]{}]/g,
+                "\\$&"
+              );
+              const span = `<span class="misspelled" data-word="${word}" title="${
+                response.suggestions?.join(", ") || "No suggestions"
+              }">${word}</span>`;
+              const regex = new RegExp(`\\b${escapedWord}\\b`, "g");
+              modified = modified.replace(regex, span);
             }
           });
-        }, 2000);
-      } else {
-        // If no text, reset typing status
-        isTyping = false;
-      }
-    });
-    
-    // Function to save the caret position
-    function saveCaretPosition(element) {
-      let caretPos = 0;
-      if (document.selection) {
-        element.focus();
-        const range = document.selection.createRange();
-        range.moveStart("character", -element.innerText.length);
-        caretPos = range.text.length;
-      } else if (element.selectionStart || element.selectionStart === "0") {
-        caretPos = element.selectionStart;
-      }
-      return caretPos;
+        });
+
+        Promise.all(promises).then(() => {
+          // Only save and restore the cursor if content actually changed
+          if ($this.html() !== modified) {
+            const cursorPosition = saveCaretPosition($this[0]);
+
+            // Update the content
+            $this.html(modified);
+
+            // Restore the cursor position to the end
+            restoreCaretPositionToEnd($this[0]);
+          }
+        });
+      }, 1000);
+    } else {
+      // If no text, reset typing status
+      isTyping = false;
     }
-    
-    // Function to restore the caret position to the end
-    function restoreCaretPositionToEnd(element) {
+  });
+
+  // Function to save the caret position
+  function saveCaretPosition(element) {
+    let caretPos = 0;
+    if (document.selection) {
       element.focus();
-      const range = document.createRange();
-      const selection = window.getSelection();
-      range.selectNodeContents(element);
-      range.collapse(false); // Collapse the range to the end (false)
-      selection.removeAllRanges();
-      selection.addRange(range);
+      const range = document.selection.createRange();
+      range.moveStart("character", -element.innerText.length);
+      caretPos = range.text.length;
+    } else if (element.selectionStart || element.selectionStart === "0") {
+      caretPos = element.selectionStart;
     }
-    
+    return caretPos;
+  }
+
+  // Function to restore the caret position to the end
+  function restoreCaretPositionToEnd(element) {
+    element.focus();
+    const range = document.createRange();
+    const selection = window.getSelection();
+    range.selectNodeContents(element);
+    range.collapse(false); // Collapse the range to the end (false)
+    selection.removeAllRanges();
+    selection.addRange(range);
+  }
 
   // Context menu for misspelled words
   $(document).on("contextmenu", ".misspelled", function (e) {
@@ -229,11 +235,11 @@ function addToDictionary(word) {
     .then((response) => response.json())
     .then((data) => {
       console.log(data);
-      if (data.status === "success") {
-        alert(`'${word}' added to your dictionary!`);
-      } else {
-        alert(data.message || "Failed to add word.");
-      }
+      // if (data.status === "success") {
+      //   alert(`'${word}' added to your dictionary!`);
+      // } else {
+      //   alert(data.message || "Failed to add word.");
+      // }
     })
     .catch((error) => {
       console.error("Error adding word:", error);

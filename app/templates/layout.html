@@ -16,20 +16,24 @@
 <body>
     <nav>
         <a href="{{ url_for('main.home') }}">Home</a>
-        {% if session.user_id %}
-            <a href="{{ url_for('main.upload') }}">Upload</a>
-            <a href="{{ url_for('main.profile') }}">Profile</a>
-            <a href="{{ url_for('main.notifications') }}">Notifications</a>
+
+        {% if session.get('user_id') %}
+            {% if session.get('is_admin') %}
+                <a href="{{ url_for('admin.dashboard') }}">Admin Dashboard</a>
+            {% else %}
+                <a href="{{ url_for('main.upload') }}">Upload</a>
+                <a href="{{ url_for('main.profile') }}">Profile</a>
+                <a href="{{ url_for('main.notifications') }}">Notifications</a>
+            {% endif %}
+
             <a href="{{ url_for('auth.logout') }}">Logout</a>
         {% else %}
             <a href="{{ url_for('auth.login') }}">Login</a>
             <a href="{{ url_for('auth.signup') }}">Signup</a>
         {% endif %}
+        
         <a href="{{ url_for('main.faq') }}">FAQ</a>
         <a href="{{ url_for('main.about') }}">About</a>
-        {% if session.is_admin %}
-            <a href="{{ url_for('admin.dashboard') }}">Admin Dashboard</a>
-        {% endif %}
     </nav>
     <main>
         {% with messages = get_flashed_messages(with_categories=true) %}

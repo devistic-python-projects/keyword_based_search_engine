@@ -7,7 +7,7 @@
         <select name="user_filter" id="user_filter">
             <option value="">All</option>
             {% for user in users %}
-                <option value="{{ user.username }}" {% if user_filter == user.username %}selected{% endif %}>{{ user.username }}</option>
+                <option value="{{ user.email }}" {% if user_filter == user.email %}selected{% endif %}>{{ user.email }}</option>
             {% endfor %}
         </select>
         <button type="submit">Apply Filter</button>

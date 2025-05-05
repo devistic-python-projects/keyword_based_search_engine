@@ -14,18 +14,20 @@
     autocomplete="off"
     spellcheck="false"
   ></div>
-  <input type="hidden" name="query" id="hidden-query" />
+  <input type="hidden" name="query" id="search-query" />
 
   <div id="context-menu" style="display: none">
     <ul style="list-style: none; margin: 0; padding: 0"></ul>
   </div>
   <button type="submit" style="margin-top: 10px">Search</button>
 </form>
-{% if session.user_id %}
-<a href="{{ url_for('main.upload') }}" class="btn">Upload Documents</a>
-{% else %}
-<button onclick="confirmLogin()">Upload Documents</button>
+
+{% if session.get('user_id') and not session.get('is_admin') %}
+    <a href="{{ url_for('main.upload') }}" class="btn">Upload Documents</a>
+{% elif not session.get('user_id') %}
+    <button onclick="confirmLogin()">Upload Documents</button>
 {% endif %}
+
 <script>
   function confirmLogin() {
       Swal.fire({

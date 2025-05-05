@@ -36,11 +36,11 @@
 #     """Handle signup form submission."""
 #     form = SignupForm()
 #     if form.validate_on_submit():
-#         username = form.username.data
+#         email = form.email.data
 #         email = form.email.data
 #         password = form.password.data
 #         # Add user to the database (ensure user doesn't already exist)
-#         execute_query("INSERT INTO users (username, email, password) VALUES (?, ?, ?)", (username, email, password))
+#         execute_query("INSERT INTO users (email, email, password) VALUES (?, ?, ?)", (email, email, password))
 #         flash('Account created successfully!', 'success')
 #         return redirect(url_for('login'))
 #     return render_template('signup.html', form=form)

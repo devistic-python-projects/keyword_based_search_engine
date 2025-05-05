@@ -19,12 +19,12 @@ class TestSearchEngine(unittest.TestCase):
                 conn.executescript(f.read().decode('utf8'))
             # Create test user
             conn.execute(
-                'INSERT INTO User (username, email, password_hash, created_by, updated_by) VALUES (?, ?, ?, ?, ?)',
+                'INSERT INTO User (email, email, password_hash, created_by, updated_by) VALUES (?, ?, ?, ?, ?)',
                 ('testuser', 'test@example.com', generate_password_hash('testpassword'), 'System', 'System')
             )
             # Create test admin
             conn.execute(
-                'INSERT INTO Admin (username, email, password_hash, created_by, updated_by) VALUES (?, ?, ?, ?, ?)',
+                'INSERT INTO Admin (email, email, password_hash, created_by, updated_by) VALUES (?, ?, ?, ?, ?)',
                 ('admin', 'admin@example.com', generate_password_hash('adminpassword'), 'System', 'System')
             )
             conn.commit()
@@ -40,7 +40,7 @@ class TestSearchEngine(unittest.TestCase):
 
     def test_login(self):
         response = self.client.post('/login', data={
-            'username': 'testuser',
+            'email': 'testuser',
             'password': 'testpassword'
         }, follow_redirects=True)
         self.assertEqual(response.status_code, 200)
@@ -48,7 +48,7 @@ class TestSearchEngine(unittest.TestCase):
 
     def test_admin_login(self):
         response = self.client.post('/login', data={
-            'username': 'admin',
+            'email': 'admin',
             'password': 'adminpassword'
         }, follow_redirects=True)
         self.assertEqual(response.status_code, 200)
@@ -57,7 +57,7 @@ class TestSearchEngine(unittest.TestCase):
     def test_upload(self):
         # Log in first
         self.client.post('/login', data={
-            'username': 'testuser',
+            'email': 'testuser',
             'password': 'testpassword'
         })
         
@@ -70,7 +70,7 @@ class TestSearchEngine(unittest.TestCase):
     def test_search(self):
         # Log in and upload a document
         self.client.post('/login', data={
-            'username': 'testuser',
+            'email': 'testuser',
             'password': 'testpassword'
         })
         data = {'files': (BytesIO(b'Test content with keyword'), 'test.txt')}
@@ -89,7 +89,7 @@ class TestSearchEngine(unittest.TestCase):
     def test_admin_dashboard(self):
         # Log in as admin
         self.client.post('/login', data={
-            'username': 'admin',
+            'email': 'admin',
             'password': 'adminpassword'
         })
         

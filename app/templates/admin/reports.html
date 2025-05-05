@@ -46,7 +46,7 @@
     <table>
         <thead>
             <tr>
-                <th>Username</th>
+                <th>Email</th>
                 <th>Activity Count</th>
             </tr>
         </thead>
@@ -66,7 +66,7 @@
         <select name="user_filter" id="user_filter">
             <option value="">All</option>
             {% for user in users %}
-                <option value="{{ user.username }}">{{ user.username }}</option>
+                <option value="{{ user.email }}">{{ user.email }}</option>
             {% endfor %}
         </select>
         <label for="date_from">From:</label>

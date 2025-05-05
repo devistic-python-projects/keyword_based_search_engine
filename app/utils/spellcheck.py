@@ -74,12 +74,12 @@ def add_to_dictionary(word, user_id):
         try:
             conn.execute(
                 'INSERT INTO UserDictionary (user_id, word, created_by, updated_by) VALUES (?, ?, ?, ?)',
-                (user_id, word.lower(), session.get('username', 'System'), session.get('username', 'System'))
+                (user_id, word.lower(), session.get('email', 'System'), session.get('email', 'System'))
             )
             conn.execute(
                 'INSERT INTO Logs (table_name, record_id, action, system_remarks, created_by, updated_by) VALUES (?, last_insert_rowid(), ?, ?, ?, ?)',
                 ('UserDictionary', 'ADD', f'Added word {word} to dictionary for user {user_id}',
-                session.get('username', 'System'), session.get('username', 'System'))
+                session.get('email', 'System'), session.get('email', 'System'))
             )
             conn.commit()
             return True

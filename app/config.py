@@ -29,8 +29,8 @@ class Config:
     
     # Error messages
     ERROR_MESSAGES = {
-        'invalid_credentials': 'Invalid username or password.',
-        'user_exists': 'Username or email already exists.',
+        'invalid_credentials': 'Invalid email or password.',
+        'user_exists': 'Email already exists.',
         'invalid_file_format': 'Unsupported file format. Supported formats: txt, csv, json, xml, tsv.',
         'no_file_uploaded': 'No file uploaded.',
         'login_required': 'Please log in to access this feature.',

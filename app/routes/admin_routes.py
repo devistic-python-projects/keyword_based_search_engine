@@ -38,11 +38,11 @@ def users():
 def delete_user(user_id):
     conn = get_db_connection()
     conn.execute('UPDATE User SET is_deleted = 1, updated_by = ?, updated_date = CURRENT_TIMESTAMP WHERE id = ?',
-                (session['username'], user_id))
+                (session['email'], user_id))
     conn.commit()
     conn.close()
     flash('User deleted successfully.', 'success')
-    log_action('User', user_id, 'DELETE', f'User {user_id} deleted by admin {session["username"]}')
+    log_action('User', user_id, 'DELETE', f'User {user_id} deleted by admin {session["email"]}')
     return redirect(url_for('admin.users'))
 
 @admin_bp.route('/logs')
@@ -157,7 +157,7 @@ def reports():
     ).fetchall()
     
     # Users for timeline report
-    users = conn.execute('SELECT username FROM User WHERE is_deleted = 0').fetchall()
+    users = conn.execute('SELECT email FROM User WHERE is_deleted = 0').fetchall()
     
     conn.close()
     
@@ -216,7 +216,7 @@ def timeline():
         [p for p in [user_filter, date_from, date_to + ' 23:59:59' if date_to else None] if p]
     ).fetchone()[0]
     
-    users = conn.execute('SELECT username FROM User WHERE is_deleted = 0').fetchall()
+    users = conn.execute('SELECT email FROM User WHERE is_deleted = 0').fetchall()
     conn.close()
     
     total_pages = (total_activities + per_page - 1) // per_page
@@ -354,3 +354,35 @@ def search_trends():
     return render_template('admin/search_trends.html', 
                          top_queries=top_queries, 
                          search_freq_data=search_freq_data)
+    
+
+@admin_bp.route('/monitor')
+@admin_required
+def monitor():
+    page = request.args.get('page', 1, type=int)
+    per_page = 20
+    user_filter = request.args.get('user_filter', '')
+    
+    conn = get_db_connection()
+    query = 'SELECT * FROM Logs WHERE is_deleted = 0 AND (table_name IN ("User", "Document", "Search", "UserDictionary") OR action = "PAGE_VIEW")'
+    params = []
+    
+    if user_filter:
+        query += ' AND created_by = ?'
+        params.append(user_filter)
+    
+    query += ' ORDER BY created_date DESC LIMIT ? OFFSET ?'
+    params.extend([per_page, (page - 1) * per_page])
+    
+    activities = conn.execute(query, params).fetchall()
+    total_activities = conn.execute(
+        'SELECT COUNT(*) FROM Logs WHERE is_deleted = 0 AND (table_name IN ("User", "Document", "Search", "UserDictionary") OR action = "PAGE_VIEW")'
+    ).fetchone()[0]
+    users = conn.execute('SELECT username FROM User WHERE is_deleted = 0').fetchall()
+    conn.close()
+    
+    total_pages = (total_activities + per_page - 1) // per_page
+    log_action('Admin', session['user_id'], 'VIEW_MONITOR', f'Admin viewed user activity monitor (page {page})')
+    
+    return render_template('admin/monitor.html', activities=activities, page=page, total_pages=total_pages,
+                         user_filter=user_filter, users=users)

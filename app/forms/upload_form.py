@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
-from wtforms import FileField, SubmitField
-from wtforms.validators import DataRequired
+from flask_wtf.file import FileField
+from wtforms import SubmitField
 
 class UploadForm(FlaskForm):
-    files = FileField('Upload Documents', validators=[DataRequired()], render_kw={'multiple': True})
+    files = FileField('Upload Documents', render_kw={"multiple": True})
     submit = SubmitField('Upload')
