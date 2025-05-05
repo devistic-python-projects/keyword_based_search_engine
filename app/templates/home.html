@@ -1,40 +1,51 @@
-{% extends 'layout.html' %}
-{% block title %}Home{% endblock %}
-{% block content %}
-    <h1>Welcome to the Keyword-Based Search Engine</h1>
-    <p>Search for documents using keywords or phrases. Upload your documents to get started.</p>
-    <form action="{{ url_for('main.search') }}" method="POST">
-        <input type="text" name="query" id="search-bar" placeholder="Enter keywords or phrases" required>
-        <button type="submit">Search</button>
-    </form>
-    {% if session.user_id %}
-        <a href="{{ url_for('main.upload') }}" class="btn">Upload Documents</a>
-    {% else %}
-        <button onclick="confirmLogin()">Upload Documents</button>
-    {% endif %}
-    <div id="context-menu" style="display: none; position: absolute; background: white; border: 1px solid #ccc; padding: 0.5rem; z-index: 1000;">
-        <ul style="list-style: none; margin: 0; padding: 0;"></ul>
-    </div>
-    <script>
-        function confirmLogin() {
-            Swal.fire({
-                title: 'Login Required',
-                text: 'You need to log in to upload documents.',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Go to Login',
-                cancelButtonText: 'Cancel'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.href = '{{ url_for('auth.login') }}';
-                }
-            });
-        }
-        // Store user_id in sessionStorage for spellcheck
-        {% if session.user_id %}
-            sessionStorage.setItem('user_id', '{{ session.user_id }}');
-        {% else %}
-            sessionStorage.removeItem('user_id');
-        {% endif %}
-    </script>
+{% extends 'layout.html' %} {% block title %}Home{% endblock %} {% block content
+%}
+<h1>Welcome to the Keyword-Based Search Engine</h1>
+<p>
+  Search for documents using keywords or phrases. Upload your documents to get
+  started.
+</p>
+<form action="{{ url_for('main.search') }}" method="POST">
+  <div
+    id="search-bar"
+    contenteditable="true"
+    class="search-input"
+    placeholder="Enter keywords or phrases"
+    autocomplete="off"
+    spellcheck="false"
+  ></div>
+  <input type="hidden" name="query" id="hidden-query" />
+
+  <div id="context-menu" style="display: none">
+    <ul style="list-style: none; margin: 0; padding: 0"></ul>
+  </div>
+  <button type="submit" style="margin-top: 10px">Search</button>
+</form>
+{% if session.user_id %}
+<a href="{{ url_for('main.upload') }}" class="btn">Upload Documents</a>
+{% else %}
+<button onclick="confirmLogin()">Upload Documents</button>
+{% endif %}
+<script>
+  function confirmLogin() {
+      Swal.fire({
+          title: 'Login Required',
+          text: 'You need to log in to upload documents.',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Go to Login',
+          cancelButtonText: 'Cancel'
+      }).then((result) => {
+          if (result.isConfirmed) {
+              window.location.href = '{{ url_for('auth.login') }}';
+          }
+      });
+  }
+  // Store user_id in sessionStorage for spellcheck
+  {% if session.user_id %}
+      sessionStorage.setItem('user_id', '{{ session.user_id }}');
+  {% else %}
+      sessionStorage.removeItem('user_id');
+  {% endif %}
+</script>
 {% endblock %}

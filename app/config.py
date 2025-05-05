@@ -11,6 +11,7 @@ class Config:
     INDEX_DIR = os.path.join(BASE_DIR, '..', 'indexes')
     LOGS_DIR = os.path.join(BASE_DIR, '..', 'logs')
     DATABASE = os.path.join(BASE_DIR, '..', 'database', 'search_engine.db')
+    GUEST_DICT_PATH = os.path.join(BASE_DIR, '..', 'instance', 'guest_dictionary.txt')
     
     # Supported document formats
     SUPPORTED_FORMATS = {'.txt', '.csv', '.json', '.xml', '.tsv'}

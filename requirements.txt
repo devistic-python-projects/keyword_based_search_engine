@@ -1,8 +1,9 @@
-Flask==2.3.3
-Flask-Session==0.5.0
-Flask-WTF==1.2.1
-Werkzeug==3.0.1
-Whoosh==2.7.4
-WTForms==3.1.2
-pytest==7.4.0
-python-dotenv==1.0.1
+Flask==2.3.5
+Flask-Session==0.5.1
+Flask-WTF==1.2.3
+Werkzeug==3.1.1
+Whoosh==2.7.7
+WTForms==3.1.4
+pytest==7.4.3
+python-dotenv==1.0.3
+pyspellchecker==0.6.0

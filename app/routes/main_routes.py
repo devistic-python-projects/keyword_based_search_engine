@@ -143,16 +143,16 @@ def spellcheck():
     return jsonify(result)
 
 @main_bp.route('/add-to-dictionary', methods=['POST'])
-def add_to_dictionary_route():
-    if 'user_id' not in session:
-        return jsonify({'error': 'Login required.'}), 401
+def add_to_dict_route():
     data = request.get_json()
-    word = data.get('word')
+    word = data.get('word', '').strip().lower()
+    user_id = session.get('user_id')
+    
     if not word:
-        return jsonify({'error': 'No word provided.'}), 400
-    if add_to_dictionary(word, session['user_id']):
-        return jsonify({'success': True})
-    return jsonify({'error': 'Word already exists or invalid.'}), 400
+        return jsonify({'status': 'error', 'message': 'No word provided'}), 400
+
+    add_to_dictionary(word, user_id)
+    return jsonify({'status': 'success'})
 
 @main_bp.route('/notifications')
 def notifications():
