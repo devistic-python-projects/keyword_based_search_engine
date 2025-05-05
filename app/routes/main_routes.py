@@ -7,7 +7,7 @@ from app.forms.upload_form import UploadForm
 import os
 from flask import current_app
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta
 
 main_bp = Blueprint('main', __name__)
 
@@ -53,25 +53,28 @@ def search():
         conn.commit()
         conn.close()
         
-        return render_template('results.html', results=results, query=query)
+        return render_template('results.html', results=results, query=query,
+                       date_filter=date_filter, type_filter=type_filter)
     
     return redirect(url_for('main.home'))
 
 def search_documents(query, date_filter=None, type_filter=None):
     query = query.lower().strip()
-    
-    # Split query into words and allow any word, even single characters
-    keywords = [word for word in query.split() if word]  # Remove empty strings
-    
+    print(f"\n[SEARCH] Query received: '{query}'")
+    print(f"[SEARCH] Date filter: {date_filter}")
+    print(f"[SEARCH] Type filter: {type_filter}")
+
+    # Split query into keywords
+    keywords = [word for word in query.split() if word]
     if not keywords:
+        print("[SEARCH] No valid keywords found in query.")
         return []
 
-    # Allow partial matches by searching for keywords in both document content and filename
     placeholders = ','.join(['?'] * len(keywords))
 
-    # Combined query for DocumentIndex and Document tables
+    # Base SQL
     sql = f'''
-        SELECT d.id as doc_id, d.filename, d.file_path,
+        SELECT d.id as doc_id, d.filename, d.file_path, d.created_date,
                COALESCE(SUM(di.frequency), 0) as score
         FROM Document d
         LEFT JOIN DocumentIndex di
@@ -79,13 +82,26 @@ def search_documents(query, date_filter=None, type_filter=None):
             AND di.keyword IN ({placeholders})
         WHERE LOWER(d.filename) LIKE ?
     '''
+    params = keywords + [f"%{query}%"]
 
-    params = keywords + [f"%{query}%"]  # Add the query as a pattern for filename matching
-
+    # Handle date filter
     if date_filter:
-        sql += " AND date(d.created_at) = ?"
-        params.append(date_filter)
+        today = datetime.today().date()
+        if date_filter == "today":
+            date_from = today
+        elif date_filter == "week":
+            date_from = today - timedelta(days=7)
+        elif date_filter == "month":
+            date_from = today.replace(day=1)
+        else:
+            date_from = None
 
+        if date_from:
+            sql += " AND date(d.created_date) >= ?"
+            params.append(date_from.isoformat())
+            print(f"[SEARCH] Date range applied from: {date_from.isoformat()}")
+
+    # Handle type filter
     if type_filter:
         sql += " AND LOWER(d.file_path) LIKE ?"
         params.append(f"%{type_filter.lower()}")
@@ -95,22 +111,26 @@ def search_documents(query, date_filter=None, type_filter=None):
         ORDER BY score DESC
     '''
 
+    print(f"\n[SEARCH] Final SQL:\n{sql.strip()}")
+    print(f"[SEARCH] Parameters: {params}")
+
     try:
         with get_db_connection() as conn:
             rows = conn.execute(sql, params).fetchall()
+            print(f"[SEARCH] Rows fetched: {len(rows)}")
             results = []
 
-            # Process and return results
             for row in rows:
                 snippet = f"Matched file: {row['filename']}"
                 results.append({
                     'doc_id': row['doc_id'],
-                    'filename': row['filename'],  # Include filename in results
+                    'filename': row['filename'],
                     'score': row['score'],
                     'snippet': snippet
                 })
 
     except Exception as e:
+        print(f"[SEARCH] Error occurred: {e}")
         return []
 
     return results

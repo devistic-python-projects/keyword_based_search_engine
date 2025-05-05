@@ -1,58 +1,58 @@
-{% extends 'layout.html' %} {% block title %}Search Results{% endblock %} {%
-block content %}
-<h1>Search Results for "{{ query }}"</h1>
-<form action="{{ url_for('main.search') }}" method="POST" class="filters">
-  <input type="hidden" name="query" value="{{ query }}" />
-  <div>
-    <label for="date_filter">Filter by Date:</label>
-    <select name="date_filter" id="date_filter">
-      <option value="">All</option>
-      <option value="today">Today</option>
-      <option value="week">This Week</option>
-      <option value="month">This Month</option>
-    </select>
-  </div>
-  <div>
-    <label for="type_filter">Filter by Type:</label>
-    <select name="type_filter" id="type_filter">
-      <option value="">All</option>
-      <option value=".txt">Text (.txt)</option>
-      <option value=".csv">CSV (.csv)</option>
-      <option value=".json">JSON (.json)</option>
-      <option value=".xml">XML (.xml)</option>
-      <option value=".tsv">TSV (.tsv)</option>
-    </select>
-  </div>
-  <div>
-    <button type="submit">Apply Filters</button>
-  </div>
-</form>
-{% if results %}
-<div class="results">
-  {% for result in results %}
-  <div class="result-item">
-    <h3>{{ result.filename }}</h3>
-    <p>{{ result.snippet | safe }}</p>
-    <a href="{{ url_for('main.download', doc_id=result.doc_id) }}" class="btn"
-      >Download</a
-    >
-    <button onclick="showPreview('{{ result.doc_id }}')" class="btn">
-      Preview
-    </button>
-  </div>
-  {% endfor %}
+{% extends 'layout.html' %}
+{% block title %}Search Results{% endblock %}
+{% block page_heading %}Search Results for "{{ query }}"{% endblock %}
+{% block breadcrumbs %}
+    <li class="breadcrumb-item active" aria-current="page">Search Results</li>
+{% endblock %}
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-body">
+        <form action="{{ url_for('main.search') }}" method="POST" class="mb-4">
+            <input type="hidden" name="query" value="{{ query }}" />
+            <div class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label for="date_filter" class="form-label">Filter by Date</label>
+                    <select name="date_filter" id="date_filter" class="form-select">
+                        <option value="" {% if not date_filter %}selected{% endif %}>All</option>
+                        <option value="today" {% if date_filter == 'today' %}selected{% endif %}>Today</option>
+                        <option value="week" {% if date_filter == 'week' %}selected{% endif %}>This Week</option>
+                        <option value="month" {% if date_filter == 'month' %}selected{% endif %}>This Month</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="type_filter" class="form-label">Filter by Type</label>
+                    <select name="type_filter" id="type_filter" class="form-select">
+                        <option value="" {% if not type_filter %}selected{% endif %}>All</option>
+                        <option value=".txt" {% if type_filter == '.txt' %}selected{% endif %}>Text (.txt)</option>
+                        <option value=".csv" {% if type_filter == '.csv' %}selected{% endif %}>CSV (.csv)</option>
+                        <option value=".json" {% if type_filter == '.json' %}selected{% endif %}>JSON (.json)</option>
+                        <option value=".xml" {% if type_filter == '.xml' %}selected{% endif %}>XML (.xml)</option>
+                        <option value=".tsv" {% if type_filter == '.tsv' %}selected{% endif %}>TSV (.tsv)</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
+                </div>
+            </div>
+        </form>
+
+        {% if results %}
+            {% for result in results %}
+                <div class="card mb-3 shadow-sm">
+                    <div class="card-body">
+                        <h3 class="card-title">{{ result.filename }}</h3>
+                        <p class="card-text">{{ result.snippet | safe }}</p>
+                        <div>
+                            <a href="{{ url_for('main.download', doc_id=result.doc_id) }}" class="btn btn-primary me-2">Download</a>
+                            <button onclick="showPreview('{{ result.doc_id }}')" class="btn btn-secondary">Preview</button>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p class="text-muted">No results found for "{{ query }}".</p>
+        {% endif %}
+        <a href="{{ url_for('main.home') }}" class="btn btn-primary mt-3">Back to Search</a>
+    </div>
 </div>
-{% else %}
-<p>No results found for "{{ query }}".</p>
-{% endif %}
-<a href="{{ url_for('main.home') }}" class="btn">Back to Search</a>
-<style>
-  .filters {
-    margin-bottom: 1rem;
-  }
-  .filters select,
-  .filters button {
-    margin-right: 1rem;
-  }
-</style>
 {% endblock %}

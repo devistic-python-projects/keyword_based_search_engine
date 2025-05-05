@@ -1,157 +1,138 @@
 {% extends 'layout.html' %}
 {% block title %}User Activity Timeline{% endblock %}
+{% block page_heading %}User Activity Timeline{% endblock %}
+{% block breadcrumbs %}
+    <li class="breadcrumb-item"><a href="{{ url_for('admin.reports') }}">Reports</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Timeline</li>
+{% endblock %}
 {% block content %}
-    <h1>User Activity Timeline</h1>
-    <form action="{{ url_for('admin.timeline') }}" method="GET" class="filters">
-        <label for="user_filter">User:</label>
-        <select name="user_filter" id="user_filter">
-            <option value="">All</option>
-            {% for user in users %}
-                <option value="{{ user.email }}" {% if user_filter == user.email %}selected{% endif %}>{{ user.email }}</option>
-            {% endfor %}
-        </select>
-        <label for="date_from">From:</label>
-        <input type="date" name="date_from" id="date_from" value="{{ date_from }}">
-        <label for="date_to">To:</label>
-        <input type="date" name="date_to" id="date_to" value="{{ date_to }}">
-        <button type="submit">Apply Filters</button>
-    </form>
-    
-    <a href="{{ url_for('admin.export_timeline', user_filter=user_filter, date_from=date_from, date_to=date_to) }}" class="btn">Export to CSV</a>
-    
-    <h2>Timeline</h2>
-    <canvas id="timelineChart" height="100"></canvas>
-    
-    <h2>Action Breakdown</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Action</th>
-                <th>Count</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for row in action_breakdown %}
-                <tr>
-                    <td>{{ row.action }}</td>
-                    <td>{{ row.count }}</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    
-    <div class="pagination">
-        {% if page > 1 %}
-            <a href="{{ url_for('admin.timeline', page=page-1, user_filter=user_filter, date_from=date_from, date_to=date_to) }}" class="btn">Previous</a>
-        {% endif %}
-        <span>Page {{ page }} of {{ total_pages }}</span>
-        {% if page < total_pages %}
-            <a href="{{ url_for('admin.timeline', page=page+1, user_filter=user_filter, date_from=date_to) }}" class="btn">Next</a>
-        {% endif %}
+<div class="card shadow-sm">
+    <div class="card-body">
+        <form action="{{ url_for('admin.timeline') }}" method="GET" class="filters mb-3">
+            <div>
+                <label for="user_filter" class="form-label">User:</label>
+                <select name="user_filter" id="user_filter" class="form-select">
+                    <option value="">All</option>
+                    {% for user in users %}
+                        <option value="{{ user.email }}" {% if user_filter == user.email %}selected{% endif %}>{{ user.email }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label for="date_from" class="form-label">From:</label>
+                <input type="date" name="date_from" id="date_from" value="{{ date_from }}" class="form-control">
+            </div>
+            <div>
+                <label for="date_to" class="form-label">To:</label>
+                <input type="date" name="date_to" id="date_to" value="{{ date_to }}" class="form-control">
+            </div>
+            <div>
+                <button type="submit" class="btn btn-primary">Apply Filters</button>
+            </div>
+        </form>
+
+        <a href="{{ url_for('admin.export_timeline', user_filter=user_filter, date_from=date_from, date_to=date_to) }}" class="btn btn-primary confirm-action mb-3" data-message="Are you sure you want to export the timeline to CSV?">Export to CSV</a>
+
+        <h2 class="card-title mt-4">Timeline</h2>
+        <canvas id="timelineChart" height="100"></canvas>
+
+        <h2 class="card-title mt-4">Action Breakdown</h2>
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Action</th>
+                        <th>Count</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in action_breakdown %}
+                        <tr>
+                            <td>{{ row.action }}</td>
+                            <td>{{ row.count }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="pagination">
+            {% if page > 1 %}
+                <a href="{{ url_for('admin.timeline', page=page-1, user_filter=user_filter, date_from=date_from, date_to=date_to) }}" class="btn btn-primary">Previous</a>
+            {% endif %}
+            <span>Page {{ page }} of {{ total_pages }}</span>
+            {% if page < total_pages %}
+                <a href="{{ url_for('admin.timeline', page=page+1, user_filter=user_filter, date_from=date_from, date_to=date_to) }}" class="btn btn-primary">Next</a>
+            {% endif %}
+        </div>
+
+        <a href="{{ url_for('admin.reports') }}" class="btn btn-primary mt-3">Back to Reports</a>
     </div>
-    
-    <a href="{{ url_for('admin.reports') }}" class="btn">Back to Reports</a>
-    
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const ctx = document.getElementById('timelineChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'scatter',
-                data: {
-                    datasets: [{
-                        label: 'User Activities',
-                        data: [
-                            {% for activity in timeline_data %}
-                                {
-                                    x: '{{ activity.date }}',
-                                    y: 0,
-                                    action: '{{ activity.action }}',
-                                    remarks: '{{ activity.remarks | replace("'", "\\'") }}',
-                                    table: '{{ activity.table }}',
-                                    record_id: '{{ activity.record_id }}'
-                                }{% if not loop.last %},{% endif %}
-                            {% endfor %}
-                        ],
-                        backgroundColor: 'rgba(0, 123, 255, 0.5)',
-                        borderColor: 'rgba(0, 123, 255, 1)',
-                        pointRadius: 5
-                    }]
-                },
-                options: {
-                    scales: {
-                        x: {
-                            type: 'time',
-                            time: {
-                                unit: 'day',
-                                tooltipFormat: 'yyyy-MM-dd HH:mm:ss'
-                            },
-                            title: {
-                                display: true,
-                                text: 'Date'
-                            }
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('timelineChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'scatter',
+            data: {
+                datasets: [{
+                    label: 'User Activities',
+                    data: [
+                        {% for activity in timeline_data %}
+                            {
+                                x: '{{ activity.date }}',
+                                y: 0,
+                                action: '{{ activity.action }}',
+                                remarks: '{{ activity.remarks | replace("'", "\\'") }}',
+                                table: '{{ activity.table }}',
+                                record_id: '{{ activity.record_id }}'
+                            }{% if not loop.last %},{% endif %}
+                        {% endfor %}
+                    ],
+                    backgroundColor: 'rgba(0, 123, 255, 0.5)',
+                    borderColor: 'rgba(0, 123, 255, 1)',
+                    pointRadius: 5
+                }]
+            },
+            options: {
+                scales: {
+                    x: {
+                        type: 'time',
+                        time: {
+                            unit: 'day',
+                            tooltipFormat: 'yyyy-MM-dd HH:mm:ss'
                         },
-                        y: {
-                            display: false
+                        title: {
+                            display: true,
+                            text: 'Date'
                         }
                     },
-                    plugins: {
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    const data = context.raw;
-                                    return [
-                                        `Action: ${data.action}`,
-                                        `Table: ${data.table}`,
-                                        `Record ID: ${data.record_id}`,
-                                        `Remarks: ${data.remarks}`
-                                    ];
-                                }
+                    y: {
+                        display: false
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const data = context.raw;
+                                return [
+                                    `Action: ${data.action}`,
+                                    `Table: ${data.table}`,
+                                    `Record ID: ${data.record_id}`,
+                                    `Remarks: ${data.remarks}`
+                                ];
                             }
-                        },
-                        legend: {
-                            display: false
                         }
+                    },
+                    legend: {
+                        display: false
                     }
                 }
-            });
+            }
         });
-    </script>
-    
-    <style>
-        canvas {
-            margin-bottom: 2rem;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 2rem;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 0.75rem;
-            text-align: left;
-        }
-        th {
-            background: #f4f4f4;
-            font-weight: bold;
-        }
-        .filters {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-            margin-bottom: 1rem;
-            flex-wrap: wrap;
-        }
-        .filters select, .filters input, .filters button {
-            padding: 0.5rem;
-            margin-right: 1rem;
-        }
-        .pagination {
-            margin-top: 1rem;
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-        }
-    </style>
+    });
+</script>
 {% endblock %}

@@ -1,7 +1,17 @@
 {% extends 'layout.html' %}
 {% block title %}Error{% endblock %}
+{% block page_heading %}Error{% endblock %}
+{% block breadcrumbs %}
+    <li class="breadcrumb-item active" aria-current="page">Error</li>
+{% endblock %}
 {% block content %}
-    <h1>Error</h1>
-    <p>{{ message | default('An unexpected error occurred. Please try again later.') }}</p>
-    <a href="{{ url_for('main.home') }}" class="btn">Back to Home</a>
+<div class="card shadow-sm text-center">
+    <div class="card-body">
+        <h2 class="card-title text-danger">Something Went Wrong</h2>
+        <p class="card-text">
+            {{ message | default('An unexpected error occurred. Please try again later.') }}
+        </p>
+        <a href="{{ url_for('main.home') }}" class="btn btn-primary">Back to Home</a>
+    </div>
+</div>
 {% endblock %}

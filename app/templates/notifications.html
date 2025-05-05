@@ -1,44 +1,43 @@
 {% extends 'layout.html' %}
-{% block title %}My Notifications{% endblock %}
+{% block title %}Notifications{% endblock %}
+{% block page_heading %}My Notifications{% endblock %}
+{% block breadcrumbs %}
+    <li class="breadcrumb-item active" aria-current="page">Notifications</li>
+{% endblock %}
 {% block content %}
-    <h1>My Notifications</h1>
-    {% if notifications %}
-        <table>
-            <thead>
-                <tr>
-                    <th>Message</th>
-                    <th>Type</th>
-                    <th>Created Date</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for notification in notifications %}
-                    <tr>
-                        <td>{{ notification.message }}</td>
-                        <td>{{ notification.type }}</td>
-                        <td>{{ notification.created_date }}</td>
-                        <td>{{ 'Read' if notification.is_read else 'Unread' }}</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    {% else %}
-        <p>No notifications found.</p>
-    {% endif %}
-    <a href="{{ url_for('main.home') }}" class="btn">Back to Home</a>
-    <style>
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 0.5rem;
-            text-align: left;
-        }
-        th {
-            background: #f4f4f4;
-        }
-    </style>
+<div class="card shadow-sm">
+    <div class="card-body">
+        {% if notifications %}
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Message</th>
+                            <th>Type</th>
+                            <th>Created Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for notification in notifications %}
+                            <tr>
+                                <td>{{ notification.message }}</td>
+                                <td>{{ notification.type }}</td>
+                                <td>{{ notification.created_date }}</td>
+                                <td>
+                                    <span class="badge {% if notification.is_read %}bg-success{% else %}bg-warning{% endif %}">
+                                        {{ 'Read' if notification.is_read else 'Unread' }}
+                                    </span>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="text-muted">No notifications found.</p>
+        {% endif %}
+        <a href="{{ url_for('main.home') }}" class="btn btn-primary mt-3">Back to Home</a>
+    </div>
+</div>
 {% endblock %}

@@ -1,32 +1,52 @@
-{% extends 'layout.html' %} {% block title %}Home{% endblock %} {% block content
-%}
-<h1>Welcome to the Keyword-Based Search Engine</h1>
-<p>
-  Search for documents using keywords or phrases. Upload your documents to get
-  started.
-</p>
-<form action="{{ url_for('main.search') }}" method="POST">
-  <div
-    id="search-bar"
-    contenteditable="true"
-    class="search-input"
-    placeholder="Enter keywords or phrases"
-    autocomplete="off"
-    spellcheck="false"
-  ></div>
-  <input type="hidden" name="query" id="search-query" />
-
-  <div id="context-menu" style="display: none">
-    <ul style="list-style: none; margin: 0; padding: 0"></ul>
+{% extends 'layout.html' %} {% block title %}Home{% endblock %} {% block
+page_heading %}Welcome to DocQuery{% endblock %} {% block breadcrumbs %}
+<li class="breadcrumb-item active" aria-current="page">Home</li>
+{% endblock %} {% block content %}
+<div class="card shadow-sm mb-5">
+  <div class="card-body text-center">
+    <h2 class="card-title fw-bold">
+      Keyword-Based Search Engine for Text Documents
+    </h2>
+    <p class="card-text lead">
+      Discover and manage your documents with ease. Search using keywords or
+      phrases and upload your text files to get started.
+    </p>
   </div>
-  <button type="submit" style="margin-top: 10px">Search</button>
+</div>
+
+<form action="{{ url_for('main.search') }}" method="POST" class="mb-4">
+  <div class="mb-3">
+    <div
+      id="search-bar"
+      contenteditable="true"
+      class="search-input"
+      data-placeholder="Enter keywords or phrases"
+      autocomplete="off"
+      spellcheck="false"
+    ></div>
+    <input type="hidden" name="query" id="search-query" />
+  </div>
+  <div id="context-menu" class="position-absolute" style="display: none">
+    <ul class="list-unstyled m-0 p-2"></ul>
+  </div>
+  <div class="text-center">
+    <button type="submit" class="btn">Search Documents</button>
+  </div>
 </form>
 
-{% if session.get('user_id') and not session.get('is_admin') %}
-    <a href="{{ url_for('main.upload') }}" class="btn">Upload Documents</a>
-{% elif not session.get('user_id') %}
-    <button onclick="confirmLogin()">Upload Documents</button>
-{% endif %}
+<hr class="my-4" />
+
+<div class="text-center">
+  {% if session.get('user_id') and not session.get('is_admin') %}
+  <a href="{{ url_for('main.upload') }}" class="btn btn-success"
+    >Upload Documents</a
+  >
+  {% elif not session.get('user_id') %}
+  <button onclick="confirmLogin()" class="btn btn-warning">
+    Upload Documents
+  </button>
+  {% endif %}
+</div>
 
 <script>
   function confirmLogin() {
@@ -35,15 +55,17 @@
           text: 'You need to log in to upload documents.',
           icon: 'warning',
           showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
           confirmButtonText: 'Go to Login',
           cancelButtonText: 'Cancel'
       }).then((result) => {
           if (result.isConfirmed) {
-              window.location.href = '{{ url_for('auth.login') }}';
+              window.location.href = '{{ url_for("auth.login") }}';
           }
       });
   }
-  // Store user_id in sessionStorage for spellcheck
+
   {% if session.user_id %}
       sessionStorage.setItem('user_id', '{{ session.user_id }}');
   {% else %}

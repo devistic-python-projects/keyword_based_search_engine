@@ -1,50 +1,36 @@
 {% extends 'layout.html' %}
 {% block title %}Admin Dashboard{% endblock %}
+{% block page_heading %}Admin Dashboard{% endblock %}
+{% block breadcrumbs %}
+    <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
+{% endblock %}
 {% block content %}
-    <h1>Admin Dashboard</h1>
-    <div class="dashboard-stats">
-        <div class="stat">
-            <h3>Users</h3>
-            <p>{{ user_count }}</p>
+<div class="card shadow-sm">
+    <div class="card-body">
+        <div class="dashboard-stats">
+            <div class="stat">
+                <h3>Users</h3>
+                <p>{{ user_count }}</p>
+            </div>
+            <div class="stat">
+                <h3>Documents</h3>
+                <p>{{ doc_count }}</p>
+            </div>
+            <div class="stat">
+                <h3>Searches</h3>
+                <p>{{ search_count }}</p>
+            </div>
+            <div class="stat">
+                <h3>Notifications</h3>
+                <p>{{ notification_count }}</p>
+            </div>
         </div>
-        <div class="stat">
-            <h3>Documents</h3>
-            <p>{{ doc_count }}</p>
-        </div>
-        <div class="stat">
-            <h3>Searches</h3>
-            <p>{{ search_count }}</p>
-        </div>
-        <div class="stat">
-            <h3>Notifications</h3>
-            <p>{{ notification_count }}</p>
+        <div class="dashboard-links justify-content-around">
+            <a href="{{ url_for('admin.users') }}" class="btn btn-primary">Manage Users</a>
+            <a href="{{ url_for('admin.logs') }}" class="btn btn-primary">View Logs</a>
+            <a href="{{ url_for('admin.reports') }}" class="btn btn-primary">View Reports</a>
+            <a href="{{ url_for('admin.monitor') }}" class="btn btn-primary">Monitor User Activity</a>
         </div>
     </div>
-    <div class="dashboard-links">
-        <a href="{{ url_for('admin.users') }}" class="btn">Manage Users</a>
-        <a href="{{ url_for('admin.logs') }}" class="btn">View Logs</a>
-        <a href="{{ url_for('admin.reports') }}" class="btn">View Reports</a>
-        <a href="{{ url_for('admin.monitor') }}" class="btn">Monitor User Activity</a>
-    </div>
-    <style>
-        .dashboard-stats {
-            display: flex;
-            gap: 2rem;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
-        }
-        .stat {
-            background: #f4f4f4;
-            padding: 1rem;
-            border-radius: 5px;
-            text-align: center;
-            flex: 1;
-            min-width: 150px;
-        }
-        .dashboard-links {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-    </style>
+</div>
 {% endblock %}

@@ -1,16 +1,31 @@
 {% extends 'layout.html' %}
 {% block title %}Upload Documents{% endblock %}
+{% block page_heading %}Upload Your Documents{% endblock %}
+{% block breadcrumbs %}
+    <li class="breadcrumb-item active" aria-current="page">Upload</li>
+{% endblock %}
 {% block content %}
-    <h1>Upload Documents</h1>
-    <form method="POST" enctype="multipart/form-data">
-        {{ form.hidden_tag() }}
-        <p>{{ form.files.label }}</p>
-        {{ form.files(multiple=True) }}
-        {% if form.files.errors %}
-            {% for error in form.files.errors %}
-                <p class="error">{{ error }}</p>
-            {% endfor %}
-        {% endif %}
-        <p>{{ form.submit() }}</p>
-    </form>
+<div class="card shadow-sm">
+    <div class="card-body">
+        <p class="card-text">
+            Upload your text-based documents (.txt, .csv, .json, .xml, .tsv) to make them searchable. Multiple files can be selected at once.
+        </p>
+        <form method="POST" enctype="multipart/form-data">
+            {{ form.hidden_tag() }}
+            <div class="mb-3">
+                {{ form.files.label(class="form-label") }}
+                {{ form.files(class="form-control", multiple=True) }}
+                {% if form.files.errors %}
+                    {% for error in form.files.errors %}
+                        <div class="text-danger">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            <div class="d-grid">
+                {{ form.submit(class="btn btn-primary") }}
+            </div>
+        </form>
+        <a href="{{ url_for('main.home') }}" class="btn btn-secondary mt-3">Back to Home</a>
+    </div>
+</div>
 {% endblock %}

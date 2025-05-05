@@ -1,115 +1,114 @@
-# Keyword-Based Search Engine
 
-A Flask-based search engine for text documents with keyword and phrase search, spell-checking, and admin management.
+# Keyword-Based Search Engine for Text Documents
 
-## Setup Instructions
+A Flask-based web application for uploading, indexing, and searching text documents using keyword-based search with Whoosh. The application supports user authentication, admin management, logging, and detailed reporting features.
 
-1. **Clone the Repository**
-   ```bash
-   git clone <repository-url>
-   cd keyword_based_search_engine
-   ```
+## Setup and Configuration
 
-2. **Create a Virtual Environment**
+### Installation
+
+1. **Create a virtual environment**:
    ```bash
    python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
 
-3. **Install Dependencies**
+2. **Activate the virtual environment**:
+   - On Windows:
+     ```bash
+     venv\Scripts\activate
+     ```
+   - On MacOS/Linux:
+     ```bash
+     source venv/bin/activate
+     ```
+
+3. **Install dependencies**:
    ```bash
    pip install -r requirements.txt
    ```
 
-4. **Set Environment Variables**
-   Create a `.env` file in the root directory:
-   ```
-   SECRET_KEY=your-secret-key
-   ```
-
-5. **Initialize the Database**
-   The database will be created automatically on first run.
-
-6. **Run the Application**
    ```bash
-   python run.py
+   pip install email_validator==2.2.0
    ```
 
-7. **Access the Application**
-   Open a browser and navigate to `http://localhost:5000`.
-
-
-8. **To run the tests**
-    ```bash
-   pytest tests/test_app.py
+4. **Initialize the database**:
+   ```bash
+   python init_db.py
    ```
 
-## Features
-- Search: Keyword and phrase search with Whoosh indexing, ranked by relevance and recency.
-- Upload: Supports .txt, .csv, .json, .xml, .tsv files (requires login).
-- Spell-Checking: Real-time spell-checking with suggestions and user dictionary.
-- Document Previews: View the first 1000 characters of documents.
-- User Profile: View uploaded documents and manage custom dictionary words.
-- Notifications: User-specific notifications for uploads and other actions.
-- Admin Dashboard: Manage users, view logs, and monitor notifications.
-- Accessibility: Responsive design with semantic HTML.
-- Logging: Tracks all actions (upload, download, search, etc.) in SQLite.
+5. **Run the Flask application**:
+   ```bash
+   flask run
+   ```
 
-## Directory Structure
-- `app/`: Flask application code
-- `uploads/`: Uploaded documents
-- `indexes/`: Whoosh indexes
-- `logs/`: System logs
-- `database/`: SQLite database
+---
 
-## 📁 Project Structure
-keyword_search_engine/
-│
+## Project Structure
+
+```
+keyword-search-engine/
 ├── app/
-│   ├── __init__.py
-│   ├── config.py
-│   ├── routes/
-│   │   ├── __init__.py
-│   │   ├── auth_routes.py
-│   │   ├── main_routes.py
-│   │   ├── admin_routes.py
-│   ├── templates/
-│   │   ├── layout.html
-│   │   ├── login.html
-│   │   ├── signup.html
-│   │   ├── home.html
-│   │   ├── upload.html
-│   │   ├── results.html
-│   │   ├── admin/
-│   │   │   ├── dashboard.html
-│   │   │   ├── logs.html
-│   │   │   ├── users.html
-│   │   │   ├── notifications.html
-│   ├── static/
+│   ├── __init__.py               # Application factory and configuration
+│   ├── config.py                 # Configuration settings (e.g., upload folder, Whoosh schema)
+│   ├── forms/                    # WTForms for form validation
+│   │   ├── login_form.py         # Login form
+│   │   ├── signup_form.py        # Signup form
+│   │   └── upload_form.py        # Document upload form
+│   ├── routes/                   # Blueprint-based route handlers
+│   │   ├── auth_routes.py        # Authentication routes (login, signup, logout)
+│   │   ├── main_routes.py        # Core routes (home, upload, search, profile)
+│   │   └── admin_routes.py       # Admin routes (dashboard, logs, reports, timeline)
+│   ├── static/                   # Static assets
 │   │   ├── css/
-│   │   │   └── styles.css
-│   │   ├── js/
-│   │   │   └── main.js
-│   ├── utils/
-│   │   ├── db.py
-│   │   ├── indexing.py
-│   │   ├── spellcheck.py
-│   │   ├── decorators.py
-│   │   ├── validation.py
-│   ├── forms/
-│   │   ├── login_form.py
-│   │   ├── signup_form.py
-│   │   ├── upload_form.py
-│
-├── uploads/                 ← uploaded documents stored here
-├── indexes/                ← Whoosh index stored here
-├── logs/                   ← system logs here
-│
-├── database/
-│   ├── schema.sql          ← All table creation SQL scripts
-│   └── search_engine.db    ← Main SQLite DB (created at runtime)
-│
-├── .env
-├── run.py
-├── requirements.txt
-├── README.md
+│   │   │   └── styles.css        # Application-wide CSS
+│   │   └── js/
+│   │       └── main.js           # Client-side JavaScript
+│   ├── templates/                # Jinja2 templates
+│   │   ├── admin/                # Admin-specific templates
+│   │   │   ├── dashboard.html    # Admin dashboard
+│   │   │   ├── logs.html         # System logs with filtering and pagination
+│   │   │   ├── monitor.html      # User activity monitoring
+│   │   │   ├── reports.html      # Summary reports (action counts, errors, etc.)
+│   │   │   ├── timeline.html     # User activity timeline with Chart.js visualization
+│   │   │   ├── document_usage.html # Document usage statistics
+│   │   │   ├── search_trends.html # Search query trends with Chart.js
+│   │   │   └── users.html        # User management
+│   │   ├── layout.html           # Base template with navigation and scripts
+│   │   ├── login.html            # Login page
+│   │   ├── signup.html           # Signup page
+│   │   ├── home.html             # Home page with search
+│   │   ├── upload.html           # Document upload page
+│   │   ├── profile.html          # User profile
+│   │   ├── notifications.html    # User notifications
+│   │   ├── faq.html              # FAQ page
+│   │   ├── about.html            # About page
+│   │   └── error.html            # Error page
+│   ├── utils/                    # Utility modules
+│   │   ├── db.py                 # Database connection and initialization
+│   │   ├── decorators.py         # Custom decorators (e.g., admin_required)
+│   │   ├── indexing.py           # Whoosh indexing functions
+│   │   └── logging.py            # Logging utility for standardized log entries
+├── uploads/                      # Directory for uploaded documents
+├── logs/                         # Directory for log files (if exported)
+├── database/schema.sql           # SQLite database schema
+├── requirements.txt              # Python dependencies
+├── README.md                     # Project documentation
+└── run.py                        # Entry point for running the application
+```
+
+---
+
+## Key Components
+
+- **app/__init__.py**: Defines the Flask app factory, initializes extensions (e.g., Flask-Session), sets up middleware for request time logging, and registers blueprints.
+- **app/config.py**: Contains configuration settings like the upload folder, Whoosh schema, and database path.
+- **app/routes/**: Organizes routes into blueprints for authentication, main functionality, and admin features.
+- **app/templates/**: Jinja2 templates for rendering pages, with admin templates separated for clarity.
+- **app/static/**: CSS and JavaScript files, including styles for responsive design and Chart.js for visualizations.
+- **app/utils/**: Reusable utilities for database operations, logging, indexing, and decorators.
+- **database/schema.sql**: Defines the SQLite schema for tables like `User`, `Document`, `Search`, `Logs`, etc.
+- **uploads/**, **index/**, **logs/**: Directories for storing uploaded files, Whoosh index, and log exports, respectively.
+
+---
+
+This structure ensures maintainability, modularity, and scalability for the keyword-based search engine.

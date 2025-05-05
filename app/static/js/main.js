@@ -9,85 +9,92 @@ $(document).ready(function () {
     }
   });
 
-  $("#search-bar").on("input", function () {
-    clearTimeout(timeout);
-    const $this = $(this);
-    const text = $this.text();
-
-    // Check if typing has started
-    if (!isTyping) {
-      isTyping = true;
-    }
-
+  $("#search-bar").on("keyup", function () {
+    clearTimeout(timeout)
+    const $this = $(this)
+    const el = $this[0]
+    const text = el.textContent
+  
+    if (!isTyping) isTyping = true
+  
     if (text.trim()) {
-      // Only trigger after typing stops
+      const savedRange = saveSelection(el)
+  
       timeout = setTimeout(() => {
-        const words = text.split(/\s+/);
-        let modified = text;
-
-        const promises = words.map((word) => {
-          return $.ajax({
+        const words = text.split(/\s+/)
+        let modified = text
+  
+        const promises = words.map((word) =>
+          $.ajax({
             url: "/spellcheck",
             method: "POST",
             contentType: "application/json",
             data: JSON.stringify({ word }),
           }).then((response) => {
             if (!response.is_correct) {
-              const escapedWord = word.replace(
-                /[-\/\\^$*+?.()|[\]{}]/g,
-                "\\$&"
-              );
-              const span = `<span class="misspelled" data-word="${word}" title="${
-                response.suggestions?.join(", ") || "No suggestions"
-              }">${word}</span>`;
-              const regex = new RegExp(`\\b${escapedWord}\\b`, "g");
-              modified = modified.replace(regex, span);
+              const escapedWord = word.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&")
+              const span = `<span class="misspelled" data-word="${word}" title="${response.suggestions?.join(", ") || "No suggestions"}">${word}</span>`
+              const regex = new RegExp(`\\b${escapedWord}\\b`, "g")
+              modified = modified.replace(regex, span)
             }
-          });
-        });
-
+          })
+        )
+  
         Promise.all(promises).then(() => {
-          // Only save and restore the cursor if content actually changed
-          if ($this.html() !== modified) {
-            const cursorPosition = saveCaretPosition($this[0]);
-
-            // Update the content
-            $this.html(modified);
-
-            // Restore the cursor position to the end
-            restoreCaretPositionToEnd($this[0]);
+          if (el.innerHTML !== modified) {
+            el.innerHTML = modified
+            restoreSelection(el, savedRange)
           }
-        });
-      }, 1000);
+        })
+      }, 500)
     } else {
-      // If no text, reset typing status
-      isTyping = false;
+      isTyping = false
     }
-  });
-
-  // Function to save the caret position
-  function saveCaretPosition(element) {
-    let caretPos = 0;
-    if (document.selection) {
-      element.focus();
-      const range = document.selection.createRange();
-      range.moveStart("character", -element.innerText.length);
-      caretPos = range.text.length;
-    } else if (element.selectionStart || element.selectionStart === "0") {
-      caretPos = element.selectionStart;
-    }
-    return caretPos;
+  })
+  
+  // Save and restore caret range (not just position)
+  function saveSelection(containerEl) {
+    const sel = window.getSelection()
+    if (sel.rangeCount === 0) return null
+    const range = sel.getRangeAt(0)
+    const preSelectionRange = range.cloneRange()
+    preSelectionRange.selectNodeContents(containerEl)
+    preSelectionRange.setEnd(range.startContainer, range.startOffset)
+    const start = preSelectionRange.toString().length
+  
+    return { start, end: start + range.toString().length }
   }
-
-  // Function to restore the caret position to the end
-  function restoreCaretPositionToEnd(element) {
-    element.focus();
-    const range = document.createRange();
-    const selection = window.getSelection();
-    range.selectNodeContents(element);
-    range.collapse(false); // Collapse the range to the end (false)
-    selection.removeAllRanges();
-    selection.addRange(range);
+  
+  function restoreSelection(containerEl, savedSel) {
+    if (!savedSel) return
+    const charIndex = { count: 0 }
+    const range = document.createRange()
+    range.setStart(containerEl, 0)
+    range.collapse(true)
+  
+    let nodeStack = [containerEl], node, foundStart = false, stop = false
+  
+    while (!stop && (node = nodeStack.pop())) {
+      if (node.nodeType === 3) {
+        const nextCharIndex = charIndex.count + node.length
+        if (!foundStart && savedSel.start >= charIndex.count && savedSel.start <= nextCharIndex) {
+          range.setStart(node, savedSel.start - charIndex.count)
+          foundStart = true
+        }
+        if (foundStart && savedSel.end >= charIndex.count && savedSel.end <= nextCharIndex) {
+          range.setEnd(node, savedSel.end - charIndex.count)
+          stop = true
+        }
+        charIndex.count = nextCharIndex
+      } else {
+        let i = node.childNodes.length
+        while (i--) nodeStack.push(node.childNodes[i])
+      }
+    }
+  
+    const sel = window.getSelection()
+    sel.removeAllRanges()
+    sel.addRange(range)
   }
 
   // Context menu for misspelled words
@@ -202,28 +209,6 @@ $(document).ready(function () {
   });
 });
 
-// function addToDictionary(word) {
-//   fetch("/add-to-dictionary", {
-//     method: "POST",
-//     headers: {
-//       "Content-Type": "application/json",
-//     },
-//     body: JSON.stringify({ word }),
-//   })
-//     .then((response) => response.json())
-//     .then((data) => {
-//       console.log(data);
-//       if (data.status === "success") {
-//         alert(`'${word}' added to your dictionary!`);
-//       } else {
-//         alert(data.message || "Failed to add word.");
-//       }
-//     })
-//     .catch((error) => {
-//       console.error("Error adding word:", error);
-//     });
-// }
-
 function addToDictionary(word) {
   fetch("/add-to-dictionary", {
     method: "POST",
@@ -235,11 +220,6 @@ function addToDictionary(word) {
     .then((response) => response.json())
     .then((data) => {
       console.log(data);
-      // if (data.status === "success") {
-      //   alert(`'${word}' added to your dictionary!`);
-      // } else {
-      //   alert(data.message || "Failed to add word.");
-      // }
     })
     .catch((error) => {
       console.error("Error adding word:", error);
@@ -266,6 +246,7 @@ function showPreview(doc_id) {
           text: response.content,
           icon: "info",
           showConfirmButton: true,
+          confirmButtonColor: "#3085d6", // Preview button color
           width: "600px",
         });
       }
@@ -280,5 +261,22 @@ function showPreview(doc_id) {
         timer: 3000,
       });
     },
+  });
+}
+
+function confirmDelete(userId) {
+  Swal.fire({
+      title: 'Are you sure?',
+      text: "This will mark the user as deleted.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, delete it!',
+      reverseButtons: true
+  }).then((result) => {
+      if (result.isConfirmed) {
+          document.getElementById('delete-form-' + userId).submit();
+      }
   });
 }

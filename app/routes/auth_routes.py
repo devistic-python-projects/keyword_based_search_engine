@@ -21,6 +21,7 @@ def login():
 
             if user and check_password_hash(user['password_hash'], form.password.data):
                 session['user_id'] = user['id']
+                session['username'] = user['username']
                 session['email'] = user['email']
                 session['is_admin'] = False
                 flash('Login successful!', 'success')
@@ -34,6 +35,7 @@ def login():
 
             if admin and check_password_hash(admin['password_hash'], form.password.data):
                 session['user_id'] = admin['id']
+                session['username'] = admin['username']
                 session['email'] = admin['email']
                 session['is_admin'] = True
                 flash('Admin login successful!', 'success')

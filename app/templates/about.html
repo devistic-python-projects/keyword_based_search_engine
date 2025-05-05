@@ -1,7 +1,31 @@
 {% extends 'layout.html' %}
 {% block title %}About{% endblock %}
+{% block page_heading %}About DocQuery{% endblock %}
+{% block breadcrumbs %}
+    <li class="breadcrumb-item active" aria-current="page">About</li>
+{% endblock %}
 {% block content %}
-    <h1>About the Search Engine</h1>
-    <p>This Keyword-Based Search Engine allows users to efficiently search and manage text documents. Upload documents, search with keywords or phrases, and benefit from features like spell-checking and document previews.</p>
-    <p>Built with Flask, SQLite, and Whoosh, it prioritizes speed, accessibility, and ease of use.</p>
+<div class="card shadow-sm">
+    <div class="card-body">
+        <h2 class="card-title">Our Mission</h2>
+        <p class="card-text">
+            DocQuery is a powerful keyword-based search engine for text documents designed to help users efficiently search, upload, and manage text documents. Whether you're a student, researcher, or professional, our platform simplifies document discovery.
+        </p>
+        <h2 class="card-title mt-4">Technology</h2>
+        <p class="card-text">
+            Built with Flask, SQLite, and Whoosh, DocQuery ensures fast, reliable, and secure document processing. Features like spell-checking, document previews, and intuitive search make it a versatile tool for all users.
+        </p>
+        <h2 class="card-title mt-4">About Me</h2>
+        <p class="card-text">
+            Hi, I'm Muhammad Asim, a passionate Senior Software Engineer with a focus on building innovative and user-friendly applications. With expertise in web development and a commitment to solving real-world problems, I created DocQuery to streamline document management for users across various domains.
+        </p>
+        <ul class="list-group list-group-flush mb-4">
+            <li class="list-group-item"><strong>Name:</strong> Muhammad Asim</li>
+            <li class="list-group-item"><strong>Title:</strong> Senior Software Engineer</li>
+            <li class="list-group-item"><strong>Email:</strong> <a href="mailto:asim.devistic@gmail.com">asim.devistic@gmail.com</a></li>
+            <li class="list-group-item"><strong>Student ID:</strong> BC210200948</li>
+        </ul>
+        <a href="{{ url_for('main.home') }}" class="btn mt-3">Back to Home</a>
+    </div>
+</div>
 {% endblock %}

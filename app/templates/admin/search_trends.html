@@ -1,90 +1,79 @@
 {% extends 'layout.html' %}
-
 {% block title %}Search Trends{% endblock %}
-
+{% block page_heading %}Search Trends{% endblock %}
+{% block breadcrumbs %}
+    <li class="breadcrumb-item"><a href="{{ url_for('admin.reports') }}">Reports</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Search Trends</li>
+{% endblock %}
 {% block content %}
-    <h1>Search Trends</h1>
+<div class="card shadow-sm">
+    <div class="card-body">
+        <h2 class="card-title">Top 10 Search Queries</h2>
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Query</th>
+                        <th>Count</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in top_queries %}
+                        <tr>
+                            <td>{{ row.query }}</td>
+                            <td>{{ row.count }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
 
-    <h2>Top 10 Search Queries</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Query</th>
-                <th>Count</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for row in top_queries %}
-                <tr>
-                    <td>{{ row.query }}</td>
-                    <td>{{ row.count }}</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+        <h2 class="card-title mt-4">Search Frequency (Last 30 Days)</h2>
+        <canvas id="searchChart" width="600" height="300"></canvas>
 
-    <h2>Search Frequency (Last 30 Days)</h2>
-    <canvas id="searchChart" width="600" height="300"></canvas>
+        <a href="{{ url_for('admin.reports') }}" class="btn btn-primary mt-3">Back to Reports</a>
+    </div>
+</div>
 
-    <a href="{{ url_for('admin.reports') }}" class="btn">Back to Reports</a>
-
-    <style>
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 2rem;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 0.75rem;
-            text-align: left;
-        }
-        th {
-            background: #f4f4f4;
-            font-weight: bold;
-        }
-        h2 {
-            margin-top: 2rem;
-        }
-    </style>
-
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        const ctx = document.getElementById('searchChart').getContext('2d');
-        const searchChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: {{ search_freq_data.labels | tojson }},
-                datasets: [{
-                    label: 'Search Count',
-                    data: {{ search_freq_data.data | tojson }},
-                    fill: false,
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    tension: 0.1
-                }]
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script>
+    const ctx = document.getElementById('searchChart').getContext('2d');
+    const searchChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: {{ search_freq_data.labels | tojson }},
+            datasets: [{
+                label: 'Search Count',
+                data: {{ search_freq_data.data | tojson }},
+                fill: false,
+                borderColor: 'rgba(75, 192, 192, 1)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false }
             },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: { display: false }
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Date'
+                    }
                 },
-                scales: {
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Date'
-                        }
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Search Count'
                     },
-                    y: {
-                        title: {
-                            display: true,
-                            text: 'Search Count'
-                        },
-                        beginAtZero: true,
+                    beginAtZero: true,
+                    ticks: {
                         precision: 0
                     }
                 }
             }
-        });
-    </script>
+        }
+    });
+</script>
 {% endblock %}

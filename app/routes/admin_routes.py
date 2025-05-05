@@ -378,7 +378,7 @@ def monitor():
     total_activities = conn.execute(
         'SELECT COUNT(*) FROM Logs WHERE is_deleted = 0 AND (table_name IN ("User", "Document", "Search", "UserDictionary") OR action = "PAGE_VIEW")'
     ).fetchone()[0]
-    users = conn.execute('SELECT username FROM User WHERE is_deleted = 0').fetchall()
+    users = conn.execute('SELECT * FROM User WHERE is_deleted = 0').fetchall()
     conn.close()
     
     total_pages = (total_activities + per_page - 1) // per_page
